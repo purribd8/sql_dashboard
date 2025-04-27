@@ -23,7 +23,8 @@ app.get('/api/sales-by-product', (req, res) => {
   const query = `
     SELECT product_name, SUM(sale_amount) AS total_sales
     FROM sales
-    GROUP BY product_name
+    GROUP BY product_name 
+    order by total_sales desc
   `;
   db.query(query, (err, results) => {
     if (err) {
@@ -40,7 +41,8 @@ app.get('/api/sales-by-region', (req, res) => {
   const query = `
     SELECT region, SUM(sale_amount) AS total_sales
     FROM sales
-    GROUP BY region
+    GROUP BY region 
+    order by total_sales desc
   `;
   db.query(query, (err, results) => {
     if (err) {
@@ -55,10 +57,10 @@ app.get('/api/sales-by-region', (req, res) => {
 // API route to get sales data by month
 app.get('/api/sales-by-month', (req, res) => {
   const query = `
-    SELECT DATE_FORMAT(sale_date, '%M') as month, SUM(sale_amount) AS total_sales
+    SELECT DATE_FORMAT(sale_date, '%M') AS sale_month, SUM(sale_amount) AS total_sales
     FROM sales
-    GROUP BY month
-    ORDER BY month
+    GROUP BY sale_month
+    ORDER BY sale_month desc
   `;
   db.query(query, (err, results) => {
     if (err) {
@@ -69,6 +71,7 @@ app.get('/api/sales-by-month', (req, res) => {
     res.json(results);
   });
 });
+
 
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
