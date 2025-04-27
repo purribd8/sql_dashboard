@@ -5,7 +5,7 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 app.use(express.static('public')); // Serve static files from 'public' folder
-
+/*
 // Create connection to your MySQL DB
 const db = mysql.createConnection({
   host: 'localhost',
@@ -50,6 +50,27 @@ app.get('/api/sales-by-product', (req, res) => {
 
 // API route to get sales data by region
 app.get('/api/sales-by-region', (req, res) => {
+  const mockData = [
+    { region: 'North', total_sales: 300 },
+    { region: 'South', total_sales: 250 },
+    { region: 'East', total_sales: 200 }
+  ];
+  res.json(mockData);
+});
+
+// API route to get sales data by month
+app.get('/api/sales-by-month', (req, res) => {
+  const mockData = [
+    { sale_month: 'January', total_sales: 400 },
+    { sale_month: 'February', total_sales: 350 },
+    { sale_month: 'March', total_sales: 300 }
+  ];
+  res.json(mockData);
+});
+
+/*
+// API route to get sales data by region
+app.get('/api/sales-by-region', (req, res) => {
   const query = `
     SELECT region, SUM(sale_amount) AS total_sales
     FROM sales
@@ -83,7 +104,7 @@ app.get('/api/sales-by-month', (req, res) => {
     res.json(results);
   });
 });
-
+*/
 
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
