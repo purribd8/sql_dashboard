@@ -1,41 +1,94 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sales by Product</title>
+  <title>Widget Sales Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    #chartContainer {
+      transition: opacity 0.5s ease;
+    }
+  
+    #chartContainer.fade-out {
+      opacity: 0;
+    }
+  
+    #chartContainer.fade-in {
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
-  <h1>Sales by Product</h1>
-  <canvas id="productChart" width="600" height="300"></canvas>
+  <h1>Widget Sales Dashboard</h1>
+
+<select id="dashboardSelect">
+  <option value="product">Sales by Product</option>
+  <option value="region">Sales by Region</option>
+  <option value="month">Sales by Month</option>
+</select>
+
+<div id="chartContainer">
+  <canvas id="chartCanvas" width="600" height="300"></canvas>
+</div>
 
   <script>
-    fetch('http://localhost:3000/api/sales-by-product')
-      .then(res => res.json())
-      .then(data => {
-        const labels = data.map(item => item.product_name);
-        const sales = data.map(item => item.total_sales);
-
-        const ctx = document.getElementById('productChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Total Sales ($)',
-              data: sales,
-              backgroundColor: '#4CAF50'
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true
-              }
+    const dashboardSelect = document.getElementById('dashboardSelect');
+    const chartContainer = document.getElementById('chartContainer');
+    const chartCanvas = document.getElementById('chartCanvas').getContext('2d');
+    let myChart; // To store the chart instance
+  
+    function fetchAndRender(endpoint, labelField, dataField, chartType) {
+      // Fade out first
+      
+      chartContainer.classList.add('fade-out');
+  
+      setTimeout(() => {
+        fetch(`http://localhost:3000/api/${endpoint}`)
+          .then(res => res.json())
+          .then(data => {
+            const labels = data.map(item => item[labelField]);
+            const sales = data.map(item => item[dataField]);
+  
+            if (myChart) {
+              myChart.destroy();
             }
-          }
-        });
-      });
+  
+            myChart = new Chart(chartCanvas, {
+              type: chartType,
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: 'Total Sales ($)',
+                  data: sales,
+                  backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#FF6384', '#FFCE56']
+                }]
+              },
+              options: {
+                responsive: true,
+                scales: chartType === 'line' ? { y: { beginAtZero: true } } : {}
+              }
+            });
+  
+            // After drawing new chart, fade back in
+            chartContainer.classList.remove('fade-out');
+            chartContainer.classList.add('fade-in');
+          });
+      }, 300); // Wait 300ms to make fade-out visible
+    }
+  
+    // Initial load
+    fetchAndRender('sales-by-product', 'product_name', 'total_sales', 'bar');
+  
+    // When user changes the selection
+    dashboardSelect.addEventListener('change', () => {
+      const selected = dashboardSelect.value;
+      if (selected === 'product') {
+        fetchAndRender('sales-by-product', 'product_name', 'total_sales', 'bar');
+      } else if (selected === 'region') {
+        fetchAndRender('sales-by-region', 'region', 'total_sales', 'bar');
+      } else if (selected === 'month') {
+        fetchAndRender('sales-by-month', 'sale_month', 'total_sales', 'bar');
+      }
+    });
   </script>
 </body>
 </html>

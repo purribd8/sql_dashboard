@@ -26,8 +26,47 @@ app.get('/api/sales-by-product', (req, res) => {
     GROUP BY product_name
   `;
   db.query(query, (err, results) => {
-    if (err) throw err;
-    res.json(results);  // Sends back the sales data as JSON
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Database error' });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+// API route to get sales data by region
+app.get('/api/sales-by-region', (req, res) => {
+  const query = `
+    SELECT region, SUM(sale_amount) AS total_sales
+    FROM sales
+    GROUP BY region
+  `;
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Database error' });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+// API route to get sales data by month
+app.get('/api/sales-by-month', (req, res) => {
+  const query = `
+    SELECT DATE_FORMAT(sale_date, '%M') as month, SUM(sale_amount) AS total_sales
+    FROM sales
+    GROUP BY month
+    ORDER BY month
+  `;
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Database error' });
+      return;
+    }
+    res.json(results);
   });
 });
 
