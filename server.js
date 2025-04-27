@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
+app.use(express.static('public')); // Serve static files from 'public' folder
 
 // Create connection to your MySQL DB
 const db = mysql.createConnection({
@@ -18,6 +19,7 @@ db.connect(err => {
   console.log('Connected to MySQL database.');
 });
 
+/*
 // API route to get sales data by product
 app.get('/api/sales-by-product', (req, res) => {
   const query = `
@@ -34,6 +36,16 @@ app.get('/api/sales-by-product', (req, res) => {
     }
     res.json(results);
   });
+});
+*/
+// API route to get sales data by product (mocked for now)
+app.get('/api/sales-by-product', (req, res) => {
+  const mockData = [
+    { product_name: 'Product A', total_sales: 100 },
+    { product_name: 'Product B', total_sales: 150 },
+    { product_name: 'Product C', total_sales: 200 }
+  ];
+  res.json(mockData);
 });
 
 // API route to get sales data by region
