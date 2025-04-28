@@ -41,38 +41,38 @@
       
       chartContainer.classList.add('fade-out');
   
-      setTimeout(() => {
-        fetch(`http://localhost:3000/api/${endpoint}`)
-          .then(res => res.json())
-          .then(data => {
-            const labels = data.map(item => item[labelField]);
-            const sales = data.map(item => item[dataField]);
-  
-            if (myChart) {
-              myChart.destroy();
-            }
-  
-            myChart = new Chart(chartCanvas, {
-              type: chartType,
-              data: {
-                labels: labels,
-                datasets: [{
-                  label: 'Total Sales ($)',
-                  data: sales,
-                  backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#FF6384', '#FFCE56']
-                }]
-              },
-              options: {
-                responsive: true,
-                scales: chartType === 'line' ? { y: { beginAtZero: true } } : {}
-              }
-            });
-  
-            // After drawing new chart, fade back in
-            chartContainer.classList.remove('fade-out');
-            chartContainer.classList.add('fade-in');
-          });
-      }, 300); // Wait 300ms to make fade-out visible
+      
+        setTimeout(() => {
+  fetch(`https://sql-dashboard.onrender.com/api/${endpoint}`)
+    .then(res => res.json())
+    .then(data => {
+      const labels = data.map(item => item[labelField]);
+      const sales = data.map(item => item[dataField]);
+
+      if (myChart) {
+        myChart.destroy();
+      }
+
+      myChart = new Chart(chartCanvas, {
+        type: chartType,
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Total Sales ($)',
+            data: sales,
+            backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#FF6384', '#FFCE56']
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: chartType === 'line' ? { y: { beginAtZero: true } } : {}
+        }
+      });
+
+      chartContainer.classList.remove('fade-out');
+      chartContainer.classList.add('fade-in');
+    });
+}, 300);
     }
   
     // Initial load

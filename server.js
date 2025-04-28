@@ -47,7 +47,7 @@ app.get('/api/sales-by-product', (req, res) => {
   ];
   res.json(mockData);
 });
-
+/*
 // API route to get sales data by region
 app.get('/api/sales-by-region', (req, res) => {
   const mockData = [
@@ -68,7 +68,7 @@ app.get('/api/sales-by-month', (req, res) => {
   res.json(mockData);
 });
 
-/*
+
 // API route to get sales data by region
 app.get('/api/sales-by-region', (req, res) => {
   const query = `
