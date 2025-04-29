@@ -61,7 +61,7 @@ app.get('/api/sales-by-month', (req, res) => {
     SELECT DATE_FORMAT(sale_date, '%M') AS sale_month, SUM(sale_amount) AS total_sales
     FROM sales
     GROUP BY sale_month
-    ORDER BY total_sales DESC
+    ORDER BY total_sales ASC
   `;
   db.query(query, (err, results) => {
     if (err) {

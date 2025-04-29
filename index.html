@@ -3,84 +3,211 @@
 <head>
   <title>Widget Sales Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    #chartContainer {
-      transition: opacity 0.5s ease;
+    /* Global Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-  
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 26px;
+      color: #333;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    select,
+    button {
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #chartContainer {
+      width: 90%;
+      max-width: 900px;
+      transition: opacity 0.5s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
     #chartContainer.fade-out {
       opacity: 0;
     }
-  
+
     #chartContainer.fade-in {
       opacity: 1;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    /* Read-only Comment Section */
+    #commentBox {
+      width: 90%;
+      max-width: 900px;
+      margin-top: 25px;
+      padding: 15px;
+      background-color: #fff;
+      border-left: 4px solid #4CAF50;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    #commentBox h3 {
+      margin-bottom: 8px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    #commentBox p {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
+
   <h1>Widget Sales Dashboard</h1>
 
-<select id="dashboardSelect">
-  <option value="product">Sales by Product</option>
-  <option value="region">Sales by Region</option>
-  <option value="month">Sales by Month</option>
-</select>
+  <div class="controls">
+    <select id="dashboardSelect">
+      <option value="product">Sales by Product</option>
+      <option value="region">Sales by Region</option>
+      <option value="month">Sales by Month</option>
+    </select>
+    <button id="exportCSV">Export CSV</button>
+    <button id="exportPDF">Export PDF</button>
+  </div>
 
-<div id="chartContainer">
-  <canvas id="chartCanvas" width="600" height="300"></canvas>
-</div>
+  <div id="chartContainer">
+    <canvas id="chartCanvas" width="600" height="300"></canvas>
+  </div>
+
+  <div id="commentBox">
+    <h3>Chart Insights</h3>
+    <p id="commentText">Loading analysis...</p>
+  </div>
 
   <script>
     const dashboardSelect = document.getElementById('dashboardSelect');
     const chartContainer = document.getElementById('chartContainer');
     const chartCanvas = document.getElementById('chartCanvas').getContext('2d');
-    let myChart; // To store the chart instance
-  
-    function fetchAndRender(endpoint, labelField, dataField, chartType) {
-      // Fade out first
-      
-      chartContainer.classList.add('fade-out');
-  
-      
-        setTimeout(() => {
-  fetch(`http://localhost:3000/api/${endpoint}`)
-    .then(res => res.json())
-    .then(data => {
-      const labels = data.map(item => item[labelField]);
-      const sales = data.map(item => item[dataField]);
+    const commentText = document.getElementById('commentText');
+    let myChart;
 
-      if (myChart) {
-        myChart.destroy();
-      }
+    // Developer-written static comments for each chart
+    const chartComments = {
+      product: "This chart shows sales figures broken down by product. Widget C leads significantly, indicating high customer preference or marketing success. Customer review surveys can also be analyzed to further determine why customers favor Widget C so heavily. They can also provide insight on why the other gadgets and widgets are underperforming, especially Widget A.",
+      region: "Sales by region reveals the North leads in total sales, which may reflect a dense customer base or superior regional strategies. For more clarification of sales performance, the total customer base, marketing and regional strategies, and specific counts of sales should be reviewed for each specific region. ",
+      month: "Monthly sales continue to improve which is always a welcomed sign as it shows continued growth. Total counts of each specific product sold per month help determine which products provide the majority of sales. If we want to dig a little deeper we can look at specific product sale counts per month in each region to give us a picture of how products sell compared to its location. Such information would be useful for marketing purposes."
+    };
 
-      myChart = new Chart(chartCanvas, {
-        type: chartType,
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Total Sales ($)',
-            data: sales,
-            backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#FF6384', '#FFCE56']
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: chartType === 'line' ? { y: { beginAtZero: true } } : {}
-        }
-      });
-
-      chartContainer.classList.remove('fade-out');
-      chartContainer.classList.add('fade-in');
-    });
-}, 300);
+    function updateComment(chartType) {
+      commentText.textContent = chartComments[chartType] || "No insights available for this chart.";
     }
-  
-    // Initial load
-    fetchAndRender('sales-by-product', 'product_name', 'total_sales', 'bar');
-  
-    // When user changes the selection
+
+    function generateColors(count) {
+      const palette = [
+        '#4CAF50', '#2196F3', '#FF9800', '#FF6384', '#FFCE56',
+        '#9966FF', '#00ACC1', '#8E24AA', '#F4511E', '#3949AB'
+      ];
+      return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
+    }
+
+    function fetchAndRender(endpoint, labelField, dataField, chartType) {
+      chartContainer.classList.add('fade-out');
+
+      setTimeout(() => {
+        fetch(`http://localhost:3000/api/${endpoint}`)
+          .then(res => res.json())
+          .then(data => {
+            const labels = data.map(item => item[labelField]);
+            const sales = data.map(item => item[dataField]);
+
+            if (myChart) myChart.destroy();
+
+            const maxValue = Math.max(...sales);
+            const paddedMax = Math.ceil(maxValue / 5000) * 5000 + 5000;
+
+            myChart = new Chart(chartCanvas, {
+              type: chartType,
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: 'Total Sales ($)',
+                  data: sales,
+                  backgroundColor: generateColors(sales.length)
+                }]
+              },
+              options: {
+                responsive: true,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    max: paddedMax
+                  }
+                },
+                plugins: {
+                  legend: { display: false },
+                  datalabels: {
+                    anchor: 'end',
+                    align: 'end',
+                    formatter: value => `$${value.toLocaleString()}`,
+                    font: { weight: 'bold' },
+                    color: '#333'
+                  }
+                }
+              },
+              plugins: [ChartDataLabels]
+            });
+
+            chartContainer.classList.remove('fade-out');
+            chartContainer.classList.add('fade-in');
+          });
+      }, 300);
+    }
+
     dashboardSelect.addEventListener('change', () => {
       const selected = dashboardSelect.value;
+      updateComment(selected);
       if (selected === 'product') {
         fetchAndRender('sales-by-product', 'product_name', 'total_sales', 'bar');
       } else if (selected === 'region') {
@@ -89,6 +216,43 @@
         fetchAndRender('sales-by-month', 'sale_month', 'total_sales', 'bar');
       }
     });
+
+    document.getElementById('exportCSV').addEventListener('click', () => {
+      if (!myChart) return;
+      const labels = myChart.data.labels;
+      const data = myChart.data.datasets[0].data;
+
+      let csv = 'Category,Total Sales ($)\n';
+      labels.forEach((label, i) => {
+        csv += `"${label}",${data[i]}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `sales_${dashboardSelect.value}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('exportPDF').addEventListener('click', async () => {
+      const canvas = document.getElementById('chartCanvas');
+      const canvasImage = await html2canvas(canvas);
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('landscape');
+      const imgData = canvasImage.toDataURL('image/png');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      pdf.addImage(imgData, 'PNG', 10, 10, pageWidth - 20, pageHeight - 20);
+      pdf.save(`sales_chart_${dashboardSelect.value}.pdf`);
+    });
+
+    // Initial load
+    updateComment('product');
+    fetchAndRender('sales-by-product', 'product_name', 'total_sales', 'bar');
   </script>
 </body>
 </html>
