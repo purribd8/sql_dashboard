@@ -43,7 +43,7 @@
   
       
         setTimeout(() => {
-  fetch(`https://sql-dashboard.onrender.com/api/${endpoint}`)
+  fetch(`http://localhost:3000/api/${endpoint}`)
     .then(res => res.json())
     .then(data => {
       const labels = data.map(item => item[labelField]);

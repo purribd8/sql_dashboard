@@ -5,7 +5,7 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 app.use(express.static('public')); // Serve static files from 'public' folder
-/*
+
 // Create connection to your MySQL DB
 const db = mysql.createConnection({
   host: 'localhost',
@@ -19,14 +19,13 @@ db.connect(err => {
   console.log('Connected to MySQL database.');
 });
 
-/*
 // API route to get sales data by product
 app.get('/api/sales-by-product', (req, res) => {
   const query = `
     SELECT product_name, SUM(sale_amount) AS total_sales
     FROM sales
     GROUP BY product_name 
-    order by total_sales desc
+    ORDER BY total_sales DESC
   `;
   db.query(query, (err, results) => {
     if (err) {
@@ -37,37 +36,6 @@ app.get('/api/sales-by-product', (req, res) => {
     res.json(results);
   });
 });
-*/
-// API route to get sales data by product (mocked for now)
-app.get('/api/sales-by-product', (req, res) => {
-  const mockData = [
-    { product_name: 'Product A', total_sales: 100 },
-    { product_name: 'Product B', total_sales: 150 },
-    { product_name: 'Product C', total_sales: 200 }
-  ];
-  res.json(mockData);
-});
-/*
-// API route to get sales data by region
-app.get('/api/sales-by-region', (req, res) => {
-  const mockData = [
-    { region: 'North', total_sales: 300 },
-    { region: 'South', total_sales: 250 },
-    { region: 'East', total_sales: 200 }
-  ];
-  res.json(mockData);
-});
-
-// API route to get sales data by month
-app.get('/api/sales-by-month', (req, res) => {
-  const mockData = [
-    { sale_month: 'January', total_sales: 400 },
-    { sale_month: 'February', total_sales: 350 },
-    { sale_month: 'March', total_sales: 300 }
-  ];
-  res.json(mockData);
-});
-
 
 // API route to get sales data by region
 app.get('/api/sales-by-region', (req, res) => {
@@ -75,7 +43,7 @@ app.get('/api/sales-by-region', (req, res) => {
     SELECT region, SUM(sale_amount) AS total_sales
     FROM sales
     GROUP BY region 
-    order by total_sales desc
+    ORDER BY total_sales DESC
   `;
   db.query(query, (err, results) => {
     if (err) {
@@ -93,7 +61,7 @@ app.get('/api/sales-by-month', (req, res) => {
     SELECT DATE_FORMAT(sale_date, '%M') AS sale_month, SUM(sale_amount) AS total_sales
     FROM sales
     GROUP BY sale_month
-    ORDER BY total_sales desc
+    ORDER BY total_sales DESC
   `;
   db.query(query, (err, results) => {
     if (err) {
@@ -104,7 +72,6 @@ app.get('/api/sales-by-month', (req, res) => {
     res.json(results);
   });
 });
-*/
 
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
