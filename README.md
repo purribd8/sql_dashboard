@@ -1,4 +1,4 @@
-Contains the same data as the sql_analyst repo. This version however contain and front and back end.
+Contains the same data as the sql_analyst repo. This version however is coded with a front and back end.
 
 A full-stack sales dashboard built using Node.js, Express, MySQL, and Chart.js, designed to provide visual insights into widget sales data by product, region, and month. Users can interactively explore sales metrics, view helpful insights, and export reports in PDF or CSV format.
 
