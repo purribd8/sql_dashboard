@@ -1,4 +1,4 @@
-Contains the same data as the sql_analyst repo. This version however is coded with a front and back end.
+Contains the same data as the sql_analyst repo. This version however is coded with a front and back end and needs my server to be active.
 
 The dashboard can be viewed here https://purribd8.github.io/sql_dashboard/ provided my local server is active. Otherwise you will be able to view the code here by clicking index.html and server.js. 
 
