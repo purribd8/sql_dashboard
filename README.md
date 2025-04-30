@@ -1,5 +1,9 @@
 Contains the same data as the sql_analyst repo. This version however is coded with a front and back end.
 
+The dashboard can be viewed here https://purribd8.github.io/sql_dashboard/ provided my local server is active. Otherwise you will be able to view the code here by clicking index.html and server.js. 
+
+A representation of this dashboard can also be seen at https://purribd8.github.io/sql_analyst/dashboard3.html as this version does not require my personal server to be active. 
+
 A full-stack sales dashboard built using Node.js, Express, MySQL, and Chart.js, designed to provide visual insights into widget sales data by product, region, and month. Users can interactively explore sales metrics, view helpful insights, and export reports in PDF or CSV format.
 
 🔧 Features
